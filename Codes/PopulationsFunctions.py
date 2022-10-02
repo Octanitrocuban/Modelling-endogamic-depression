@@ -44,7 +44,7 @@ def IndividusIni(nIndividus, pWoman, Ngens, PerfectEquil=False):
 		Number of people in the initial population. If the number is to low,
 		there wil be risk that the pouplation does not survive.
 	pWoman : float
-		Probability to drawn a woman. I must be in the range of 0 to 1.
+		Probability to drawn a woman. It must be in the range of 0 to 1.
 	Ngens : int
 		Number of gene pairs.
 	PerfectEquil : bool, optional
@@ -89,15 +89,15 @@ def IndividusIni(nIndividus, pWoman, Ngens, PerfectEquil=False):
 			Pop_gen_0[i, 2] = -1
 			Pop_gen_0[i, 3] = -1
 			Pop_gen_0[i, 4:] = "AA"
+	if len(Pop_gen_0[Pop_gen_0[:, 1] == 'f']) == 0:
+		Pop_gen_0[np.random.randint(0, nIndividus), 1] = 'f'
+	if len(Pop_gen_0[Pop_gen_0[:, 1] == 'm']) == 0:
+		Pop_gen_0[np.random.randint(0, nIndividus), 1] = 'm'
 	return Pop_gen_0
 
 def MatcherCouple(ArrOfPop, ppolygam=0):
 	"""
-	input:
-		@ArrOfPop: Array des individus généré lors de la simulation. Correspond
-		   à la variable de nom 'Arbre' rendue par la fonction Evoluteur.
-	output:
-		@CoupleArray: 
+	
 
 	Parameters
 	----------
@@ -122,11 +122,14 @@ def MatcherCouple(ArrOfPop, ppolygam=0):
 	if ppolygam < 1:
 		Fliste, Mliste = list(Women), list(Men) ; Stop = False
 		while Stop != True:
-			nbf = np.random.randint(0, len(Fliste))
-			nbm = np.random.randint(0, len(Mliste))
-			Couple.append([Fliste[nbf], Mliste[nbm]])
-			Fliste.pop(nbf)
-			Mliste.pop(nbm)
+			if (len(Fliste) > 0)&(len(Mliste) > 0):
+				nbf = np.random.randint(0, len(Fliste))
+				nbm = np.random.randint(0, len(Mliste))
+				Couple.append([Fliste[nbf], Mliste[nbm]])
+				Fliste.pop(nbf)
+				Mliste.pop(nbm)
+			else:
+				Stop = True
 			if (len(Fliste) == 0)|(len(Mliste) == 0):
 				Stop = True
 		if ppolygam > 0:
@@ -155,9 +158,10 @@ def Origines(Individus, ArrOfPop):
 
 	ArrOfPop: array des individus généré lors de la simulation. Correspond
 			    à la variable de nom 'Arbre' rendue par la fonction 
-	return Parents: liste de l'identifant de l'individus ciblé, et des parents
-					des parents des parents... De taille (Nombre de génération,
-					2*U[n-1]) U0 = 1. Organisation = [m, p, ..., m, p].
+	return 
+		Parents: liste de l'identifant de l'individus ciblé, et des parents
+		des parents des parents... De taille (Nombre de génération,
+		2*U[n-1]) U0 = 1. Organisation = [m, p, ..., m, p].
 
 	Parameters
 	----------
@@ -190,11 +194,11 @@ def Origines(Individus, ArrOfPop):
 			Parents.append(np.ravel(comfrom).tolist())
 			c += 1
 		t1 = datetime.now()
-		print("Origines processing time :", (t1-t0).total_seconds(), "s")
+		#print("Origines processing time :", (t1-t0).total_seconds(), "s")
 		return Parents
 	else:
 		t1 = datetime.now()
-		print("Origines processing time :", (t1-t0).total_seconds(), "s")
+		#print("Origines processing time :", (t1-t0).total_seconds(), "s")
 		return Parents[0]
 
 def Kinship(Mother, Father, ArrOfAllPop):
@@ -269,7 +273,7 @@ def gene_transmis(Mother, Father, pMutation, ArrOfAllPop, InfConsg=1):
 
 	"""
 	ScConsang = Kinship(Mother, Father, ArrOfAllPop)
-	pMut = pMutation+ScConsang*InfConsg
+	pMut = pMutation+np.sum(ScConsang)*InfConsg
 	GM, GP = np.sum(Mother[4:].astype('O')), np.sum(Father[4:].astype('O'))
 	ln = len(GM) ; GM = np.array(list(GM)) ; GP = np.array(list(GP))
 	GM = GM.reshape((2, int(ln/2))) ; GP = GP.reshape((2, int(ln/2)))
@@ -280,7 +284,7 @@ def gene_transmis(Mother, Father, pMutation, ArrOfAllPop, InfConsg=1):
 	gens = np.sum(np.array([P1, P2], dtype='O').T, axis=1)
 	return gens
 
-def Descendant(ArrayOfTheCouple, pFemme, pMutation, nIdPop_nMoins1, ArrOfPop, 
+def Descendant(ArrayOfTheCouple, pWoman, pMutation, nIdPop_nMoins1, ArrOfPop, 
 			   dp=None, CoresVals=None):
 	"""
 	
@@ -289,7 +293,7 @@ def Descendant(ArrayOfTheCouple, pFemme, pMutation, nIdPop_nMoins1, ArrOfPop,
 	----------
 	ArrayOfTheCouple : numpy.ndarray
 		Array that countain the couple formed by the MatcherCouple function.
-	pFemme : float
+	pWoman : float
 		Probability to drawn a woman. I must be in the range of 0 to 1..
 	pMutation : float
 		Mutation probability (whitout taking in count the parenty between
@@ -297,7 +301,7 @@ def Descendant(ArrayOfTheCouple, pFemme, pMutation, nIdPop_nMoins1, ArrOfPop,
 	nIdPop_nMoins1 : int
 		Number of individuals that were generated from the beginning.
 	ArrOfPop : numpy.ndarray
-		Array of individuals generated during simulation.
+		A 2 dimensions array of all individuals generated during simulation.
 	dp : numpy.ndarray, optional
 		A 2 dimensions array. It is the cumulative sum of the probability
 		density of having n children (n coming from CoresVals). The default
@@ -320,13 +324,13 @@ def Descendant(ArrayOfTheCouple, pFemme, pMutation, nIdPop_nMoins1, ArrOfPop,
 	"""
 	ChildsList, Len, shp = [], len(ArrayOfTheCouple), ArrOfPop.shape
 	if type(CoresVals) != type(None):
-		#All this part is only to check if there are error in variable dp and/
-		# or CoresVals.
+		#All this part is only to check if there are error in variable dp
+		# and/or CoresVals.
 		if (type(CoresVals) != list)&(type(CoresVals) != np.ndarray):
 			CoresVals = np.ravel(CoresVals)
 		if len(CoresVals) < 1:
 			raise ValueError(
-		"Corresponding values with the given probability density must be > 0.")
+	"Corresponding values with the given probability density must be > 0.")
 		if len(CoresVals) != len(dp):
 			raise ValueError("""There must be the same number of density
 			probability and boundaries on corresponding population length.""")
@@ -363,32 +367,135 @@ def Descendant(ArrayOfTheCouple, pFemme, pMutation, nIdPop_nMoins1, ArrOfPop,
 		else:
 			udp = np.array([0., 0.01, 0.08, 0.53, 0.88, 0.96, 0.99, 1])
 	for i in range(len(ArrayOfTheCouple)):
-		#j = np.random.choice(np.arange(len(dp)), size=1, replace=False, p=dp)
 		k = np.random.random(1)
 		for j in range(len(udp)-1):
 			if (k >= udp[j])&(k < udp[j+1]):
 				for n in range(j):
 					Indiv = np.full([shp[1]], '', dtype = '<U9')
 					Indiv[0] = str(nIdPop_nMoins1 + len(ChildsList))
-					Indiv[1] = SexeIndividus(pFemme)
+					Indiv[1] = SexeIndividus(pWoman)
 					Indiv[2] = ArrayOfTheCouple[i, 0, 0]
 					Indiv[3] = ArrayOfTheCouple[i, 1, 0]
 					Indiv[4:] = gene_transmis(ArrayOfTheCouple[i ,0],
 						ArrayOfTheCouple[i, 1], pMutation, ArrOfPop)
 					ChildsList.append(Indiv)
-	ChildsArray = np.array(ChildsList, dtype='<U5')
+	ChildsArray = np.array(ChildsList, dtype='<U9')
 	return ChildsArray
 
+def CountMuts(ArrOfPop, Ngens):
+	"""
+	Function to count the number of people who have n mutations.
+
+	Parameters
+	----------
+	ArrOfPop : numpy.ndarray
+		A 2 dimensions array of the people of the generation.
+	Ngens : int
+		Number of gene pairs.
+
+	Returns
+	-------
+	mutgs : numpy.ndarray
+		A 1 dimension array of the number of people who have n mutated gens.
+
+	"""
+	mutgs = np.zeros(int(2*Ngens+1))
+	for j in range(len(ArrOfPop)):
+		temp = np.array(list(np.sum(ArrOfPop[j, 4:].astype('O'))))
+		mutgs[len(temp[temp == 'a'])] += 1
+	return mutgs
+
+def Evoluteur(NGeneration, LenPopini, pWoman, Ngens, pMutation, ppolygam=0,
+			  PerfEquiIni=False, dp=None, CoresVals=None):
+	"""
+	Function that gather the other function to simulate the evolution of the
+	initial population.
+
+	Parameters
+	----------
+	NGeneration : int
+		The number of generation you want to generate, must be >=1.
+	LenPopini : int
+		Number of people in the initial population, avoid descending below
+		10 peoples.
+	pWoman : float
+		Probability to drawn a woman. It must be in the range of 0 to 1.
+	Ngens : int
+		Number of gene pairs.
+	pMutation : float
+		Mutation probability (whitout taking in count the parenty between
+		people).
+	ppolygam : float, optional
+		Probability of infedility. If equal to 0 then all couples will be
+		strictly monogamous. If equal to 1 then all couples will be fully
+		polygamous. Note tha the the rate of polygamous is the same for the
+		two sex.
+	PerfEquiIni : bool, optional
+		If True, the initial population will have the best equilibrium between
+		the number of men and women. The default is False.
+	dp : numpy.ndarray, optional
+		A 2 dimensions array. It is the cumulative sum of the probability
+		density of having n children (n coming from CoresVals). The default
+		is None.
+	CoresVals : numpy.ndarray, optional
+		A 1 dimension array. It is the boundaries between the different
+		density probability function about the number of child. The default is
+		None.
+
+	Returns
+	-------
+	Mut_N : numpy.ndarray
+		A 1 dimension array, number of idividus with n mutation.
+	EvoLenPop : numpy.ndarray
+		A 1 dimension array, Number of peoples by generation.
+	EvoLenPopCum : numpy.ndarray
+		A 1 dimension array, Cumulative sum of the number of people by
+		generation.
+	Arbre : numpy.ndarray
+		A 2 dimensions array, countain all the people generated during the
+		simulation.
+
+	"""
+	Mut_N = []
+	EvoLenPop, EvoLenPopCum = [], []
+	Gnn = IndividusIni(LenPopini, pWoman, Ngens, PerfEquiIni)
+	Couple = MatcherCouple(Gnn, ppolygam)
+	Evolution = []
+	Evolution.append(Gnn)
+	print("Tere are ",LenPopini," peopl :", len(Gnn[Gnn[:, 1] == 'f']),
+	   "women and", len(Gnn[Gnn[:, 1] == 'm']), "men.")
+	Mut_N.append(CountMuts(Gnn, Ngens))
+	EvoLenPop.append(len(Gnn))
+	EvoLenPopCum.append(np.cumsum(EvoLenPop))
+	for i in range(NGeneration):
+		Gnn = Descendant(Couple, pWoman, pMutation, EvoLenPopCum[i][-1],
+				   np.concatenate(Evolution), dp, CoresVals)
+		if len(Gnn) == 0:
+			print("The population get extinct at the", i, "generation.")
+			break
+		else:
+			Couple = MatcherCouple(Gnn, ppolygam)
+			Mut_N.append(CountMuts(Gnn, Ngens))
+			Evolution.append(Gnn)
+			EvoLenPop.append(len(Gnn))
+			EvoLenPopCum.append(np.cumsum(EvoLenPop))
+			print("Generation", str(i+1)+"/"+str(NGeneration))
+			print("\t", len(Gnn), 'individus')
+	Mut_N = np.array(Mut_N)
+	EvoLenPop = np.array(EvoLenPop, dtype=float)
+	EvoLenPopCum = np.cumsum(EvoLenPop)
+	Arbre = np.concatenate(Evolution)
+	return Mut_N, EvoLenPop, EvoLenPopCum, Arbre
 
 
-ProbChild = np.array([[0.00, 0.01, 0.05, 0.33, 0.29, 0.17, 0.15],
-					  [0.01, 0.06, 0.19, 0.28, 0.19, 0.16, 0.11],
-					  [0.02, 0.10, 0.23, 0.30, 0.19, 0.11, 0.05],
-					  [0.06, 0.12, 0.37, 0.35, 0.05, 0.04, 0.01],
-					  [0.65, 0.26, 0.05, 0.01, 0.01, 0.01, 0.01]],
-					  dtype=object)
-NbChCV = np.array([0, 5, 15, 25, 35])
+PobCh = np.array([[0.00, 0.01, 0.05, 0.33, 0.29, 0.17, 0.15],
+				  [0.01, 0.06, 0.19, 0.28, 0.19, 0.16, 0.11],
+				  [0.02, 0.10, 0.23, 0.30, 0.19, 0.11, 0.05],
+				  [0.06, 0.12, 0.37, 0.35, 0.05, 0.04, 0.01],
+				  [0.60, 0.28, 0.07, 0.02, 0.01, 0.01, 0.01]],
+				  dtype=object)
+NbChCV = np.array([0, 5, 15, 30, 50])
 
-idvs = IndividusIni(10, 0.5, 1, PerfectEquil=False)	
-coup = MatcherCouple(idvs, ppolygam=0.2)
-chds = Descendant(coup, 0.5, 0.0001, len(idvs), idvs,  ProbChild, NbChCV)
+for tempura in range(20):
+	Mut_arr, Len, CumLen, People = Evoluteur(10, 10, 0.5, 1, 0.0001, 0.15,
+										  False, PobCh, NbChCV)
