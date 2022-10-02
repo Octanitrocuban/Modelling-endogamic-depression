@@ -5,7 +5,6 @@ Created on Sat Oct  1 15:42:06 2022
 @author: Matthieu Nougaret
 """
 import numpy as np
-from datetime import datetime
 #=============================================================================
 def SexeIndividus(pWoman):
 	"""
@@ -97,7 +96,7 @@ def IndividusIni(nIndividus, pWoman, Ngens, PerfectEquil=False):
 
 def MatcherCouple(ArrOfPop, ppolygam=0):
 	"""
-	
+	Function that creat the couple that will give (or not) childs.
 
 	Parameters
 	----------
@@ -156,13 +155,6 @@ def Origines(Individus, ArrOfPop):
 	"""
 	Reconstructs the parent tree of the target individual.
 
-	ArrOfPop: array des individus généré lors de la simulation. Correspond
-			    à la variable de nom 'Arbre' rendue par la fonction 
-	return 
-		Parents: liste de l'identifant de l'individus ciblé, et des parents
-		des parents des parents... De taille (Nombre de génération,
-		2*U[n-1]) U0 = 1. Organisation = [m, p, ..., m, p].
-
 	Parameters
 	----------
 	Individus : numpy.ndarray
@@ -175,11 +167,12 @@ def Origines(Individus, ArrOfPop):
 
 	Returns
 	-------
-	TYPE
-		DESCRIPTION.
+	Parents : list
+		List of the identity of the targeted individual, and parents of
+		parents of parents...ect. It size is : (Number of generation,
+	  2*U[n-1]) U0 = 1. Organization = [mother, father, ..., mother, father]
 
 	"""
-	t0 = datetime.now()
 	Parents, c = [], 1
 	Parents.append([Individus[0]])
 	Parents.append([Individus[2], Individus[3]])
@@ -193,17 +186,14 @@ def Origines(Individus, ArrOfPop):
 				break
 			Parents.append(np.ravel(comfrom).tolist())
 			c += 1
-		t1 = datetime.now()
-		#print("Origines processing time :", (t1-t0).total_seconds(), "s")
 		return Parents
 	else:
-		t1 = datetime.now()
-		#print("Origines processing time :", (t1-t0).total_seconds(), "s")
 		return Parents[0]
 
 def Kinship(Mother, Father, ArrOfAllPop):
 	"""
-	Function 
+	Function that compute the genetic kinship between the mother and the
+	father.
 
 	Parameters
 	----------
@@ -219,7 +209,7 @@ def Kinship(Mother, Father, ArrOfAllPop):
 	Returns
 	-------
 	comm : float
-		It is a number that show how much the mother and father are geneticaly
+		It is an array that show how much the mother and father are geneticaly
 		close to each other.
 
 	"""
@@ -287,7 +277,7 @@ def gene_transmis(Mother, Father, pMutation, ArrOfAllPop, InfConsg=1):
 def Descendant(ArrayOfTheCouple, pWoman, pMutation, nIdPop_nMoins1, ArrOfPop, 
 			   dp=None, CoresVals=None):
 	"""
-	
+	Generate the childs created by the couples.
 
 	Parameters
 	----------
@@ -486,16 +476,3 @@ def Evoluteur(NGeneration, LenPopini, pWoman, Ngens, pMutation, ppolygam=0,
 	EvoLenPopCum = np.cumsum(EvoLenPop)
 	Arbre = np.concatenate(Evolution)
 	return Mut_N, EvoLenPop, EvoLenPopCum, Arbre
-
-
-PobCh = np.array([[0.00, 0.01, 0.05, 0.33, 0.29, 0.17, 0.15],
-				  [0.01, 0.06, 0.19, 0.28, 0.19, 0.16, 0.11],
-				  [0.02, 0.10, 0.23, 0.30, 0.19, 0.11, 0.05],
-				  [0.06, 0.12, 0.37, 0.35, 0.05, 0.04, 0.01],
-				  [0.60, 0.28, 0.07, 0.02, 0.01, 0.01, 0.01]],
-				  dtype=object)
-NbChCV = np.array([0, 5, 15, 30, 50])
-
-for tempura in range(20):
-	Mut_arr, Len, CumLen, People = Evoluteur(10, 10, 0.5, 1, 0.0001, 0.15,
-										  False, PobCh, NbChCV)
