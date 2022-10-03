@@ -151,16 +151,20 @@ def MatcherCouple(ArrOfPop, ppolygam=0):
 	CoupleArray = np.array(Couple)
 	return CoupleArray
 
-def Origines(Individus, ArrOfPop):
+def Origines(Mother, Father, ArrOfAllPop):
 	"""
 	Reconstructs the parent tree of the target individual.
 
 	Parameters
 	----------
-	Individus : numpy.ndarray
-		A 1 dimension array of individuals whose origins we want to
-		reconstruct.
-	ArrOfPop : numpy.ndarray
+	Mother : numpy.ndarray
+		A 1 dimensions array, it is the mother's informations, whose origins
+		we want to reconstruct.
+	Father : numpy.ndarray
+		A 1 dimensions array, it is the father's informations, whose origins
+		we want to reconstruct.
+
+	ArrOfAllPop : numpy.ndarray
 		A 2 dimensions array array of individuals generated during simulation.
 		Corresponds to the array of all the people ever created, represented
 		by np.concatenate(Evolution) in the function Evoluteur.
@@ -173,22 +177,28 @@ def Origines(Individus, ArrOfPop):
 	  2*U[n-1]) U0 = 1. Organization = [mother, father, ..., mother, father]
 
 	"""
-	Parents, c = [], 1
-	Parents.append([Individus[0]])
-	Parents.append([Individus[2], Individus[3]])
-	if '-1' not in Parents[1]:
-		while '-1' not in Parents:
-			comfrom = []
-			for i in range(len(Parents[c])):
-				comfrom.append(ArrOfPop[:, 2:4][
-					ArrOfPop[:, 0] == Parents[c][i]].tolist())
-			if -1 in np.array(comfrom, dtype=int):
+	Parent1, Parent2, c = [], [], 1
+	related = np.copy(ArrOfAllPop)[:, np.array([0, 2, 3])]
+	related = related.astype(int)# (self, mom, dad) number
+	Parent1.append([int(Mother[0])])
+	Parent2.append([int(Father[0])])
+	Parent1.append(np.array([Mother[2], Mother[3]], dtype=int))
+	Parent2.append(np.array([Father[2], Father[3]], dtype=int))
+	if -1 not in Parent1[1]:
+		Stop = False
+		while Stop != True:
+			comfrom1 = np.ravel(related[Parent1[c], 1:])
+			comfrom2 = np.ravel(related[Parent2[c], 1:])
+			Parent1[c] = Parent1[c].tolist()
+			Parent2[c] = Parent2[c].tolist()
+			if -1 in comfrom1:
 				break
-			Parents.append(np.ravel(comfrom).tolist())
+			Parent1.append(comfrom1)
+			Parent2.append(comfrom2)
 			c += 1
-		return Parents
+		return Parent1, Parent2
 	else:
-		return Parents[0]
+		return [Parent1[0]], [Parent2[0]]
 
 def Kinship(Mother, Father, ArrOfAllPop):
 	"""
@@ -213,26 +223,19 @@ def Kinship(Mother, Father, ArrOfAllPop):
 		close to each other.
 
 	"""
-	MotherBranch = Origines(Mother, ArrOfAllPop)
-	FatherBranch = Origines(Father, ArrOfAllPop)
-	if len(MotherBranch) != len(FatherBranch):
-		print("MotherBranch :\n", MotherBranch, "\n")
-		print("FatherBranch :\n", FatherBranch, "\n\n")
+	MotBr, FatBr = Origines(Mother, Father, ArrOfAllPop)
+	if len(MotBr) != len(FatBr):
+		print("MotBr :\n", MotBr, "\n")
+		print("FatBr :\n", FatBr, "\n\n")
 		raise
-	comm = []
-	for i in range(len(MotherBranch)):
-		val1, val2 = 0, 0
-		for j in range(len(MotherBranch[i])):
-			try:
-				if MotherBranch[i][j] in FatherBranch[i]:
-					val1 += 1/len(MotherBranch[i])
-			except:
-				""
-			try:
-				if FatherBranch[i][j] in MotherBranch[i]:
-					val2 += 1/len(FatherBranch[i])
-			except:
-				""
+	comm = [] ; L = len(ArrOfAllPop)
+	for i in range(len(MotBr)):
+		val1, val2 = 0, 0 ; Len = len(MotBr[i])
+		for j in range(Len):
+			if MotBr[i][j] in FatBr[i]:
+				val1 += 1/Len
+			if FatBr[i][j] in MotBr[i]:
+				val2 += 1/Len
 		comm.append((val1+val2)/2)
 	comm = np.array(comm, dtype=float)/((np.arange(len(comm))+1)*2).sum()
 	return comm
@@ -314,41 +317,14 @@ def Descendant(ArrayOfTheCouple, pWoman, pMutation, nIdPop_nMoins1, ArrOfPop,
 	"""
 	ChildsList, Len, shp = [], len(ArrayOfTheCouple), ArrOfPop.shape
 	if type(CoresVals) != type(None):
-		#All this part is only to check if there are error in variable dp
-		# and/or CoresVals.
-		if (type(CoresVals) != list)&(type(CoresVals) != np.ndarray):
-			CoresVals = np.ravel(CoresVals)
-		if len(CoresVals) < 1:
-			raise ValueError(
-	"Corresponding values with the given probability density must be > 0.")
-		if len(CoresVals) != len(dp):
-			raise ValueError("""There must be the same number of density
-			probability and boundaries on corresponding population length.""")
-		if CoresVals.dtype != int:
-			CoresVals = np.array(CoresVals, dtype=int)
-		if type(dp) != type(None):
-			if (type(dp) != list)&(type(dp) != np.ndarray):
-				dp = np.array(dp)
-			if (dp.dtype != float)&(dp.dtype != object):
-				dp = np.array(dp, dtype=object)
-			if len(np.shape(dp)) != 2:
-				raise ValueError(
-		"Probability density must be 2 dimension, not ", len(np.shape(dp)))
-			for i in range(np.shape(dp)[0]):
-				if len(dp[i]) == 0:
-					raise ValueError("""Given probability density must have,
-					   at least two values, indice:""", i)
-				if np.sum(dp[i]) != 1:
-					raise ValueError("Probability sum must be equal to one:",
-					   i)
-			uCV = 0
-			for i in range(len(CoresVals)-1):
-				if (CoresVals[i] < Len)&(Len <= CoresVals[i+1]):
-					uCV = CoresVals[i]
-				elif (CoresVals[i+1] <= Len)&(i == len(CoresVals)-2):
-					uCV = CoresVals[i+1]
-			udp = np.cumsum(dp[CoresVals == uCV][0], dtype=float)
-			udp = np.append(0, udp)
+		uCV = 0
+		for i in range(len(CoresVals)-1):
+			if (CoresVals[i] < Len)&(Len <= CoresVals[i+1]):
+				uCV = CoresVals[i]
+			elif (CoresVals[i+1] <= Len)&(i == len(CoresVals)-2):
+				uCV = CoresVals[i+1]
+		udp = np.cumsum(dp[CoresVals == uCV][0], dtype=float)
+		udp = np.append(0, udp)
 	else:
 		if len(ArrayOfTheCouple) <= 10:
 			udp = np.array([0., 0.00, 0.01, 0.09, 0.40, 0.68, 0.85, 1])
@@ -356,19 +332,19 @@ def Descendant(ArrayOfTheCouple, pWoman, pMutation, nIdPop_nMoins1, ArrOfPop,
 			udp = np.array([0., 0.01, 0.06, 0.24, 0.52, 0.72, 0.88, 1])
 		else:
 			udp = np.array([0., 0.01, 0.08, 0.53, 0.88, 0.96, 0.99, 1])
+	npschs = np.arange(len(udp))
 	for i in range(len(ArrayOfTheCouple)):
 		k = np.random.random(1)
-		for j in range(len(udp)-1):
-			if (k >= udp[j])&(k < udp[j+1]):
-				for n in range(j):
-					Indiv = np.full([shp[1]], '', dtype = '<U9')
-					Indiv[0] = str(nIdPop_nMoins1 + len(ChildsList))
-					Indiv[1] = SexeIndividus(pWoman)
-					Indiv[2] = ArrayOfTheCouple[i, 0, 0]
-					Indiv[3] = ArrayOfTheCouple[i, 1, 0]
-					Indiv[4:] = gene_transmis(ArrayOfTheCouple[i ,0],
-						ArrayOfTheCouple[i, 1], pMutation, ArrOfPop)
-					ChildsList.append(Indiv)
+		j = npschs[udp-k >= 0][0]-1
+		for n in range(j):
+			Indiv = np.full([shp[1]], '', dtype = '<U9')
+			Indiv[0] = str(nIdPop_nMoins1 + len(ChildsList))
+			Indiv[1] = SexeIndividus(pWoman)
+			Indiv[2] = ArrayOfTheCouple[i, 0, 0]
+			Indiv[3] = ArrayOfTheCouple[i, 1, 0]
+			Indiv[4:] = gene_transmis(ArrayOfTheCouple[i ,0],
+							 ArrayOfTheCouple[i, 1], pMutation, ArrOfPop)
+			ChildsList.append(Indiv)
 	ChildsArray = np.array(ChildsList, dtype='<U9')
 	return ChildsArray
 
@@ -441,11 +417,39 @@ def Evoluteur(NGeneration, LenPopini, pWoman, Ngens, pMutation, ppolygam=0,
 	EvoLenPopCum : numpy.ndarray
 		A 1 dimension array, Cumulative sum of the number of people by
 		generation.
-	Arbre : numpy.ndarray
+	AllPop : numpy.ndarray
 		A 2 dimensions array, countain all the people generated during the
 		simulation.
 
 	"""
+	if type(CoresVals) != type(None):
+		#All this part is only to check if there are error in variable dp
+		# and/or CoresVals.
+		if (type(CoresVals) != list)&(type(CoresVals) != np.ndarray):
+			CoresVals = np.ravel(CoresVals)
+		if len(CoresVals) < 1:
+			raise ValueError(
+	"Corresponding values with the given probability density must be > 0.")
+		if len(CoresVals) != len(dp):
+			raise ValueError("""There must be the same number of density
+			probability and boundaries on corresponding population length.""")
+		if CoresVals.dtype != int:
+			CoresVals = np.array(CoresVals, dtype=int)
+		if type(dp) != type(None):
+			if (type(dp) != list)&(type(dp) != np.ndarray):
+				dp = np.array(dp)
+			if (dp.dtype != float)&(dp.dtype != object):
+				dp = np.array(dp, dtype=object)
+			if len(np.shape(dp)) != 2:
+				raise ValueError(
+		"Probability density must be 2 dimension, not ", len(np.shape(dp)))
+			for i in range(np.shape(dp)[0]):
+				if len(dp[i]) == 0:
+					raise ValueError("""Given probability density must have,
+					   at least two values, indice:""", i)
+				if np.round(np.sum(dp[i]), 8) != 1:
+					raise ValueError("Probability sum must be equal to one:",
+					   i)
 	Mut_N = []
 	EvoLenPop, EvoLenPopCum = [], []
 	Gnn = IndividusIni(LenPopini, pWoman, Ngens, PerfEquiIni)
@@ -474,5 +478,5 @@ def Evoluteur(NGeneration, LenPopini, pWoman, Ngens, pMutation, ppolygam=0,
 	Mut_N = np.array(Mut_N)
 	EvoLenPop = np.array(EvoLenPop, dtype=float)
 	EvoLenPopCum = np.cumsum(EvoLenPop)
-	Arbre = np.concatenate(Evolution)
-	return Mut_N, EvoLenPop, EvoLenPopCum, Arbre
+	AllPop = np.concatenate(Evolution)
+	return Mut_N, EvoLenPop, EvoLenPopCum, AllPop
