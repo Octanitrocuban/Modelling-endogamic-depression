@@ -186,20 +186,17 @@ def Origines(Mother, Father, ArrOfAllPop):
 	Parent, g = [], int(Mother[4])
 	related = np.copy(ArrOfAllPop)[:, np.array([0, 2, 3])]
 	related = related.astype(int)# (self, mom, dad) number
-	Parent.append([[int(Mother[0])], [int(Father[0])]])
+	Parent.append(np.array([[int(Mother[0])], [int(Father[0])]]))
 	Parent.append(np.array([[Mother[2], Mother[3]],
 							[Father[2], Father[3]]], dtype=int))
 	if g > 0:
 		for i in range(1, g):
 			cmfrm = related[Parent[i], 1:].reshape((2,
 										   int(2*len(Parent[i][0]))))
-			Parent[i] = Parent[i].tolist()
 			Parent.append(cmfrm)
-		Parent[-1] = Parent[-1].tolist()
-		Parent = np.array(Parent, dtype=object).T.tolist()
 		return Parent
 	else:
-		return [Parent[0][0]], [Parent[0][1]]
+		return [np.array([[Parent[0][0]], [Parent[0][1]]])]
 
 def Kinship(Mother, Father, ArrOfAllPop):
 	"""
@@ -224,21 +221,17 @@ def Kinship(Mother, Father, ArrOfAllPop):
 		close to each other.
 
 	"""
-	MotBr, FatBr = Origines(Mother, Father, ArrOfAllPop)
-	Lmom = len(MotBr)
-	if Lmom != len(FatBr):
-		print("MotBr :\n", MotBr, "\n")
-		print("FatBr :\n", FatBr, "\n\n")
-		raise
-	comm = []
+	Parents = Origines(Mother, Father, ArrOfAllPop)
+	Lmom = len(Parents) ; comm = []
 	for i in range(Lmom):
-		val1, val2 = 0, 0 ; Len = len(MotBr[i])
-		for j in range(Len):
-			if MotBr[i][j] in FatBr[i]:
-				val1 += 1/Len
-			if FatBr[i][j] in MotBr[i]:
-				val2 += 1/Len
-		comm.append((val1+val2)/2)
+		Maxn = np.max([Parents[i][0], Parents[i][1]])
+		c1 = np.zeros(Maxn+1)
+		c2 = np.zeros(Maxn+1)
+		vm, cm = np.unique(Parents[i][0], return_counts=True)
+		vf, cf = np.unique(Parents[i][1], return_counts=True)
+		c1[vm] = cm ; c2[vf] = cf
+		corr = c1[(c1 > 0)&(c2 > 0)]+c2[(c1 > 0)&(c2 > 0)]
+		comm.append(corr.sum()/2/len(Parents[i][0]))
 	comm = np.array(comm, dtype=float)/((np.arange(Lmom)+1)*2).sum()
 	return comm
 
