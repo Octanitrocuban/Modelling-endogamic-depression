@@ -9,5 +9,13 @@ The python script: PopulationsFunctions.py countains the function to make the si
 	The function insde are:
   	- SexeIndividus: Sex of the people in function of the probability to drawn a woman.
 	- IndividusIni: Create the initial population with nIndividus. With proportion of women is pWomen.
+	- MatcherCouple: Function that creat the couple that will give (or not) childs.
+	- Origines: Reconstructs the parent tree of the target individual.
+	- Kinship: Function that compute the genetic kinship between the mother and the father.
+	- gene_transmis: Function managing the transmission of genes from parents to their child.
+	- Descendant: Generate the childs created by the couples.
+	- CountMuts: Function to count the number of people who have n mutations.
+	- Evoluteur: Function that gather the other function to simulate the evolution of the initial population.
+
 
 
