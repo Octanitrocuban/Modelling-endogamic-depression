@@ -465,7 +465,7 @@ def Evoluteur(NGeneration, LenPopini, pWoman, Ngens, pMutation, ppolygam=0,
 	Couple = MatcherCouple(Gnn, ppolygam)
 	Evolution = []
 	Evolution.append(Gnn)
-	print("Tere are ",LenPopini," peopl :", len(Gnn[Gnn[:, 1] == 'f']),
+	print("Tere are ",LenPopini," peoples:", len(Gnn[Gnn[:, 1] == 'f']),
 	   "women and", len(Gnn[Gnn[:, 1] == 'm']), "men.")
 	Mut_N.append(CountMuts(Gnn, Ngens))
 	EvoLenPop.append(len(Gnn))

@@ -15,7 +15,7 @@ Len0 = 6
 # Probability that a children be a woman
 pW = 0.5
 # Number of pair of gens
-ngens = 10
+ngens = 2
 # Base probability for a mutation
 pM = 0.0000001
 # Percentage of polygmous couple
@@ -42,7 +42,7 @@ MutN, EvoL, EvoLCum, AllPop = pf.Evoluteur(Gener, Len0, pW, ngens, pM, pgam,
 
 # Functions used to represent the data generated
 # Evolution of the proportion of mutated gens over generations
-sf.plotEvolGen(MutN, FgSz=(16, 6), Leg=False)
+sf.plotEvolGen(MutN, FgSz=(16, 6), Leg=True)
 # Evolution of the length of the population over generations
 sf.EvolLenPopShow(EvoL, EvoLCum, FgSz=(16, 6))
 # Genealogic links between generated people over generations
