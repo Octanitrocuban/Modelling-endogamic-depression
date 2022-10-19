@@ -40,7 +40,7 @@ The python script: "ShowFunctions.py" countain the function to represent the dat
   - InformativLinearTree: This fuction used to show the genealogical link between the peoples created during the simulation, and their mutation rate (=number of mutated gens/total number of gens).
    ![Exemple picture](InformativeGenealogicTree.png)
 
-
+The python script: "Exemple.py" provide an exemple of values and of utilisation of the two other script to make simulation.
 
 
 
