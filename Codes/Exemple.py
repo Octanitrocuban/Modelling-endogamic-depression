@@ -9,17 +9,17 @@ import PopulationsFunctions as pf
 import ShowFunctions as sf
 #=============================================================================
 # Number of generation
-Gener = 5
+Gener = 18
 # Number of people into the first generaion
 Len0 = 6
 # Probability that a children be a woman
 pW = 0.5
 # Number of pair of gens
-ngens = 500
+ngens = 10
 # Base probability for a mutation
 pM = 0.0000001
 # Percentage of polygmous couple
-pgam = 0.0
+pgam = 0.01
 # If the initial population will be the best equilibrate as possible
 PerfEq = True
 # Probability density function for couple to have n childs
@@ -30,11 +30,11 @@ dpc = np.array([[0.00, 0.01, 0.06, 0.32, 0.30, 0.19, 0.12],
 				[0.50, 0.30, 0.14, 0.03, 0.02, 0.01, 0.00]],
 				dtype=float)
 # Boundaries that make the population use different pdf of childs
-CorVal = np.array([0, 15, 30, 45, 80])
+CorVal = np.array([0, 10, 20, 30, 40])
 # Strength of the consanguinity score
-Consg = 4
+Consg = 3
 #Early stoping of the origines tree
-EarlS = 10
+EarlS = 4
 
 # Calling the main function
 MutN, EvoL, EvoLCum, AllPop = pf.Evoluteur(Gener, Len0, pW, ngens, pM, pgam,
@@ -50,4 +50,4 @@ sf.GenealogicTree(AllPop, Figsize=(17, 12), STitle=20)
 # Genealogic links between generated people over generations plus the mutation
 # rate of eache people (number of gens/number of mutated gens)
 sf.InformativLinearTree(AllPop, Figsize=(17, 14), STitl=20, Sscat=28,
-						Cmap='turbo')
+						Cmap='gnuplot')

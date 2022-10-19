@@ -190,7 +190,7 @@ def InformativLinearTree(ArrOfPop, Figsize=(18, 14), STitl=22, Sscat=30,
 		Name of the color map used for the mutation rate. The default is
 		'jet'. I try different color map, and the most readeball were:
 		['autumn', 'brg', 'plasma', 'gist_rainbow', 'gnuplot', 'jet',
-		 'turbo', 'viridis'] 
+		 'turbo', 'viridis'].
 
 	Returns
 	-------
@@ -227,10 +227,10 @@ def InformativLinearTree(ArrOfPop, Figsize=(18, 14), STitl=22, Sscat=30,
 		x1 = np.array([i]*PopG[i])
 		plt.scatter(x1[Gend[i] == 'f'], y1[Gend[i] == 'f'], cmap=Cmap,
 					s=Sscat, c=Mutcut[i][Gend[i] == 'f'], marker='o',
-					zorder=3, vmin=0, vmax=1)
+					zorder=3, vmin=0, vmax=1, edgecolors='k')
 		plt.scatter(x1[Gend[i] == 'm'], y1[Gend[i] == 'm'], cmap=Cmap,
 					s=Sscat, c=Mutcut[i][Gend[i] == 'm'], marker='^',
-					zorder=3, vmin=0, vmax=1)
+					zorder=3, vmin=0, vmax=1, edgecolors='k')
 		if i == 0:
 			link_x1 = np.zeros(PopG[i])-1
 			link_x2 = np.zeros(PopG[i])
