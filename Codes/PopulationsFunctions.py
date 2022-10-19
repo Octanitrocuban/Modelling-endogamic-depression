@@ -57,7 +57,7 @@ def IndividusIni(nIndividus, pWoman, Ngens, PerfectEquil=False):
 		A 2 dimensions array, it countain the initial population. For each
 		people, their caracteristics are as it follow : {self identifiant,
 		sex, mother identifiant, father identifiant, self generation,
-		parents consanguinity score ?, gens}.
+		gens}.
 
 	Exemple
 	-------
@@ -75,25 +75,23 @@ def IndividusIni(nIndividus, pWoman, Ngens, PerfectEquil=False):
 				      dtype='<U5')
 	"""
 	Pop_gen_0 = np.full([nIndividus, int(5+Ngens)], '', dtype='<U9')
+	arangeA = np.arange(nIndividus)
 	if PerfectEquil == True:
-		for i in range(nIndividus):
-			Pop_gen_0[i, 0] = str(i)#identity of the people
-			if i%2 == 0:
-				Pop_gen_0[i, 1] = 'f'
-			else:
-				Pop_gen_0[i, 1] = 'm'
-			Pop_gen_0[i, 2] = -1#id of the mother
-			Pop_gen_0[i, 3] = -1#id of the father
-			Pop_gen_0[i, 4] = 0# generation
-			Pop_gen_0[i, 5:] = "AA"#2 healthy genes
+		Pop_gen_0[:, 0] = arangeA.astype(str)#id of the people
+		Pop_gen_0[(arangeA%2) == 0, 1] = 'f'
+		Pop_gen_0[(arangeA%2) == 1, 1] = 'm'
+		Pop_gen_0[:, 2] = -1#id of the mother
+		Pop_gen_0[:, 3] = -1#id of the father
+		Pop_gen_0[:, 4] = 0# generation
+		Pop_gen_0[:, 5:] = "AA"#2 healthy genes
 	else:
-		for i in range(nIndividus):
-			Pop_gen_0[i, 0] = str(i)
-			Pop_gen_0[i, 1] = SexeIndividus(pWoman)
-			Pop_gen_0[i, 2] = -1
-			Pop_gen_0[i, 3] = -1
-			Pop_gen_0[i, 4] = 0
-			Pop_gen_0[i, 5:] = "AA"
+		Pop_gen_0[:, 0] = arangeA.astype(str)
+		Pop_gen_0[:, 1] = np.random.choice(np.array(['f', 'm']), nIndividus,
+											  True, [pWoman, 1-pWoman])
+		Pop_gen_0[:, 2] = -1
+		Pop_gen_0[:, 3] = -1
+		Pop_gen_0[:, 4] = 0
+		Pop_gen_0[:, 5:] = "AA"
 	if len(Pop_gen_0[Pop_gen_0[:, 1] == 'f']) == 0:
 		Pop_gen_0[np.random.randint(0, nIndividus), 1] = 'f'
 	if len(Pop_gen_0[Pop_gen_0[:, 1] == 'm']) == 0:
@@ -157,7 +155,7 @@ def MatcherCouple(ArrOfPop, ppolygam=0):
 	CoupleArray = np.array(Couple)
 	return CoupleArray
 
-def Origines(Mother, Father, ArrOfAllPop):
+def Origines(Mother, Father, ArrOfAllPop, EarlStop=10):
 	"""
 	Reconstructs the parent tree of the target individual.
 
@@ -169,6 +167,8 @@ def Origines(Mother, Father, ArrOfAllPop):
 	Father : numpy.ndarray
 		A 1 dimensions array, it is the father's informations, whose origins
 		we want to reconstruct.
+	EarlStop : int, optional
+		Made the function stop at the EarlStop-th generation.
 
 	ArrOfAllPop : numpy.ndarray
 		A 2 dimensions array array of individuals generated during simulation.
@@ -184,6 +184,8 @@ def Origines(Mother, Father, ArrOfAllPop):
 
 	"""
 	Parent, g = [], int(Mother[4])
+	if g > EarlStop:
+		g = EarlStop
 	related = np.copy(ArrOfAllPop)[:, np.array([0, 2, 3])]
 	related = related.astype(int)# (self, mom, dad) number
 	Parent.append(np.array([[int(Mother[0])], [int(Father[0])]]))
@@ -198,7 +200,7 @@ def Origines(Mother, Father, ArrOfAllPop):
 	else:
 		return [np.array([[Parent[0][0]], [Parent[0][1]]])]
 
-def Kinship(Mother, Father, ArrOfAllPop):
+def Kinship(Mother, Father, ArrOfAllPop, EarlStop=10):
 	"""
 	Function that compute the genetic kinship between the mother and the
 	father.
@@ -213,6 +215,8 @@ def Kinship(Mother, Father, ArrOfAllPop):
 		A 2 dimensions array of all peoples generated during the simulation.
 		It corresponds to 'np.concatenate(Evolution)' into the function
 		Evoluteur.
+	EarlStop : int, optional
+		Made the Origines function stop at the EarlStop-th generation.
 
 	Returns
 	-------
@@ -221,7 +225,7 @@ def Kinship(Mother, Father, ArrOfAllPop):
 		close to each other.
 
 	"""
-	Parents = Origines(Mother, Father, ArrOfAllPop)
+	Parents = Origines(Mother, Father, ArrOfAllPop, EarlStop)
 	Lmom = len(Parents) ; comm = []
 	for i in range(Lmom):
 		Maxn = np.max([Parents[i][0], Parents[i][1]])
@@ -270,7 +274,7 @@ def gene_transmis(Mother, Father, pMutation, ScConsang, InfConsg=1):
 	return gens
 
 def Descendant(ArrayOfTheCouple, pWoman, pMutation, nIdPop_nMoins1,
-				ArrOfAllPop, dp=None, CoresVals=None, InfConsg=1):
+			   ArrOfAllPop, dp=None, CoresVals=None, InfConsg=1, EarlStop=10):
 	"""
 	Generate the childs created by the couples.
 
@@ -297,6 +301,8 @@ def Descendant(ArrayOfTheCouple, pWoman, pMutation, nIdPop_nMoins1,
 		None.
 	InfConsg : float, optional
 		To modulate the inluence of the consanguinity score. The default is 1.
+	EarlStop : int, optional
+		Made the Origines function stop at the EarlStop-th generation.
 
 	Raises
 	------
@@ -331,8 +337,7 @@ def Descendant(ArrayOfTheCouple, pWoman, pMutation, nIdPop_nMoins1,
 		k = np.random.random(1)
 		j = npschs[udp-k >= 0][0]-1
 		ScConsang = np.sum(Kinship(ArrayOfTheCouple[i, 0],
-							 ArrayOfTheCouple[i, 1], ArrOfAllPop))
-		#Vectorise the next part + f°
+							 ArrayOfTheCouple[i, 1], ArrOfAllPop, EarlStop))
 		for n in range(j):
 			Indiv = np.full([shp[1]], '', dtype = '<U9')
 			Indiv[0] = str(nIdPop_nMoins1 + len(ChildsList))
@@ -340,7 +345,6 @@ def Descendant(ArrayOfTheCouple, pWoman, pMutation, nIdPop_nMoins1,
 			Indiv[2] = ArrayOfTheCouple[i, 0, 0]
 			Indiv[3] = ArrayOfTheCouple[i, 1, 0]
 			Indiv[4] = str(int(ArrayOfTheCouple[i, 0, 4])+1)
-			#Indiv[5] = str(ScConsang)
 			Indiv[5:] = gene_transmis(ArrayOfTheCouple[i, 0],
 							 ArrayOfTheCouple[i, 1], pMutation, ScConsang,
 							 InfConsg)
@@ -372,7 +376,8 @@ def CountMuts(ArrOfPop, Ngens):
 	return mutgs
 
 def Evoluteur(NGeneration, LenPopini, pWoman, Ngens, pMutation, ppolygam=0,
-			  PerfEquiIni=False, dp=None, CoresVals=None, InfConsg=1):
+			  PerfEquiIni=False, dp=None, CoresVals=None, InfConsg=1,
+			  EarlStop=10):
 	"""
 	Function that gather the other function to simulate the evolution of the
 	initial population.
@@ -409,6 +414,8 @@ def Evoluteur(NGeneration, LenPopini, pWoman, Ngens, pMutation, ppolygam=0,
 		None.
 	InfConsg : float, optional
 		To modulate the inluence of the consanguinity score. The default is 1.
+	EarlStop : int, optional
+		Made the Origines function stop at the EarlStop-th generation.
 
 	Returns
 	-------
@@ -465,7 +472,8 @@ def Evoluteur(NGeneration, LenPopini, pWoman, Ngens, pMutation, ppolygam=0,
 	EvoLenPopCum.append(np.cumsum(EvoLenPop))
 	for i in range(NGeneration):
 		Gnn = Descendant(Couple, pWoman, pMutation, EvoLenPopCum[i][-1],
-				   np.concatenate(Evolution), dp, CoresVals, InfConsg)
+						 np.concatenate(Evolution), dp, CoresVals, InfConsg,
+						 EarlStop)
 		if len(Gnn) == 0:
 			print("The population get extinct at the", i, "generation.")
 			break
