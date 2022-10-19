@@ -7,7 +7,7 @@ Created on Sun Oct  2 22:53:41 2022
 import numpy as np
 import matplotlib.pyplot as plt
 #=============================================================================
-def plotEvolGen(ArrOfMut, FgSz=(14, 6)):
+def plotEvolGen(ArrOfMut, FgSz=(16, 6), Leg=False):
 	"""
 	This fuction is used to show the evolution of the proportion of mutation
 	in the population through generation.
@@ -23,6 +23,8 @@ def plotEvolGen(ArrOfMut, FgSz=(14, 6)):
 		Tuple or any other type of 1 dimensions vector with 2 elements. These
 		elements can be int and/or float. They are the width and high of the
 		figure. The default is (14, 6).
+	Leg : bool, optional
+		Boolean to show (True) or not (False) le legend. The default is False.
 
 	Returns
 	-------
@@ -34,13 +36,15 @@ def plotEvolGen(ArrOfMut, FgSz=(14, 6)):
 	plt.title("Proportion of mutant per generation", fontsize = 22)
 	plt.grid(True, zorder=1)
 	for i in range(ArrOfMut.shape[1]):
-		plt.plot(ArrOfMut[:, i]/Nnb, '.-', label=str(i)+" mutation", zorder=2)
+		plt.plot(ArrOfMut[:, i]/Nnb, '.-', label=str(i), zorder=2)#+" mutation"
 	plt.plot([0, len(Nnb)-1], [0.5, 0.5], 'k', zorder=2)
 	plt.xlabel("Generations", fontsize=15)
 	plt.ylabel("% of the population in the n-th generation", fontsize=15)
 	plt.xticks(range(len(ArrOfMut)), range(len(ArrOfMut)),
-			   fontsize=14)
-	plt.legend(fontsize=13, loc=[1.01, -0.1])
+			   fontsize=14, rotation=90)
+	if Leg:
+		plt.legend(fontsize=13)
+	plt.xlim(-.1, len(ArrOfMut)-.9)
 	plt.show()
 	return
 
@@ -222,7 +226,6 @@ def InformativLinearTree(ArrOfPop, Figsize=(18, 14), STitl=22, Sscat=30,
 			for j in range(PopG[i]):
 				plt.plot([link_x1[j], link_x2[j]], [link_y1[j], link_y2[j]],
 						 '-', color=[1, 0, 1], zorder=1)
-				plt.text(link_x2[j], link_y2[j], str(brc1[j, 0]))
 		else:
 			brc2 = np.copy(TreeCut[i-1])
 			min_r2 = np.min(brc2[:, 0])
@@ -236,7 +239,6 @@ def InformativLinearTree(ArrOfPop, Figsize=(18, 14), STitl=22, Sscat=30,
 				yi = y1[int(brc1[j, 0]-min_r1)]
 				plt.plot([x2, x1[0]], [ym, yi], 'b-', zorder=1)
 				plt.plot([x2, x1[0]], [yp, yi], 'r-', zorder=1)
-				plt.text(x1[0], yi, str(brc1[j, 0]))
 	plt.plot(-1, cent, 'b-',
 			 label="From left to right :\nMother->child(s)")
 	plt.plot(-1, cent, 'r-',
@@ -249,4 +251,3 @@ def InformativLinearTree(ArrOfPop, Figsize=(18, 14), STitl=22, Sscat=30,
 	plt.colorbar(shrink=0.7, orientation="horizontal", pad=0.12, aspect=50)
 	plt.show()
 	return
-
