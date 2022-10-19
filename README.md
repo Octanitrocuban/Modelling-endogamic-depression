@@ -6,8 +6,8 @@ In these repository, I will try to model the endogamic depression by creating a 
 The script are in the Codes folder.
 The python script: PopulationsFunctions.py countains the function to make the simulation.
 
-	The function insde are:
-  	- SexeIndividus: Sex of the people in function of the probability to drawn a woman.
+    The function insde are:
+        - SexeIndividus: Sex of the people in function of the probability to drawn a woman.
 	- IndividusIni: Create the initial population with nIndividus. With proportion of women is pWomen.
 	- MatcherCouple: Function that creat the couple that will give (or not) childs.
 	- Origines: Reconstructs the parent tree of the target individual.
