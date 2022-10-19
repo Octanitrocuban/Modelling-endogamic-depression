@@ -36,7 +36,7 @@ def plotEvolGen(ArrOfMut, FgSz=(16, 6), Leg=False):
 	plt.title("Proportion of mutant per generation", fontsize = 22)
 	plt.grid(True, zorder=1)
 	for i in range(ArrOfMut.shape[1]):
-		plt.plot(ArrOfMut[:, i]/Nnb, '.-', label=str(i), zorder=2)#+" mutation"
+		plt.plot(ArrOfMut[:, i]/Nnb, '.-', label=str(i), zorder=2)
 	plt.plot([0, len(Nnb)-1], [0.5, 0.5], 'k', zorder=2)
 	plt.xlabel("Generations", fontsize=15)
 	plt.ylabel("% of the population in the n-th generation", fontsize=15)
@@ -67,15 +67,26 @@ def EvolLenPopShow(ArrLenPop, ArrSumPop, FgSz=(10, 7)):
 
 	"""
 	plt.figure(figsize=FgSz)
+	plt.subplot(1, 2, 1)
 	plt.title("Evolution of the population", fontsize=22)
 	plt.grid(True, zorder=1)
 	plt.plot(ArrLenPop, '.-', label="Cumulated", zorder=2)
-	plt.plot(ArrSumPop, '.-', label="By generation", zorder=2)
-	plt.legend(fontsize=15, loc='upper right')
+	plt.legend(fontsize=15, loc='upper left')
 	plt.xlabel("Generation", fontsize=15)
-	plt.ylabel("Population in the n-th generation", fontsize=15)
+	plt.ylabel("Population", fontsize=15)
 	plt.xticks(range(len(ArrLenPop)), range(len(ArrLenPop)),
-			   fontsize=14)
+			   fontsize=14, rotation=90)
+	plt.yticks(fontsize=14)
+	plt.subplot(1, 2, 2)
+	plt.title("Cumulative evolution of the population", fontsize=22)
+	plt.grid(True, zorder=1)
+	plt.plot(ArrSumPop, '.-', label="By generation", zorder=2)
+	plt.legend(fontsize=15, loc='upper left')
+	plt.xlabel("Generation", fontsize=15)
+	plt.ylabel("Cumulaive population", fontsize=15)
+	plt.xticks(range(len(ArrLenPop)), range(len(ArrLenPop)),
+			   fontsize=14, rotation=90)
+	plt.yticks(fontsize=14)
 	plt.show()
 	return
 
@@ -149,11 +160,10 @@ def GenealogicTree(ArrOfPop, Figsize=(16, 10), STitle=20):
 	plt.plot(-1, cent, "r-",
 		  label="From left to right :\nFather->child")
 	plt.xlabel("Generations", fontsize=18)
-	plt.ylabel("N° of the peoples", fontsize=18)
 	plt.legend(fontsize=15, loc='upper left')
 	plt.xticks(range(-1, Tree[-1, 1]+1), range(-1, Tree[-1, 1]+1),
 			   fontsize=14)
-	plt.yticks(fontsize=10)
+	plt.yticks(fontsize=0)
 	plt.show()
 	return
 
@@ -177,7 +187,10 @@ def InformativLinearTree(ArrOfPop, Figsize=(18, 14), STitl=22, Sscat=30,
 	Sscat : int, optional
 		Size of the dots. The default is 30.
 	Cmap : str, optional
-		Name of the color map used for the mutation rate. The default is 'jet'.
+		Name of the color map used for the mutation rate. The default is
+		'jet'. I try different color map, and the most readeball were:
+		['autumn', 'brg', 'plasma', 'gist_rainbow', 'gnuplot', 'jet',
+		 'turbo', 'viridis'] 
 
 	Returns
 	-------
