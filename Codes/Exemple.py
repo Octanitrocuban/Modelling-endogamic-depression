@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Oct  2 17:30:52 2022
 
-@author: Matthieu Nougaret
 """
 import numpy as np
 import PopulationsFunctions as pf
