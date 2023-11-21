@@ -1,9 +1,6 @@
-"""
 # -*- coding: utf-8 -*-
+"""
 
-Created on Sat Oct  1 15:42:06 2022
-
-@author: Matthieu Nougaret
 """
 import numpy as np
 #=============================================================================
