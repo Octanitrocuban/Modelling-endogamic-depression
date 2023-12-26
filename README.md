@@ -4,7 +4,7 @@ In these repository, I will try to model the endogamic depression by creating a 
 "Inbreeding depression is the reduced biological fitness which has the potential to result from inbreeding (the breeding of related individuals)." Wikipedia
 
 The script are in the Codes folder.
-The python script: "PopulationsFunctions.py" countains the function to make the simulation.
+The python script: "populations_functions.py" countains the function to make the simulation.
 
  The function insde are:
   
@@ -24,23 +24,23 @@ The python script: "PopulationsFunctions.py" countains the function to make the 
     
   - Evoluteur: Function that gather the other function to simulate the evolution of the initial population.
 
-The python script: "ShowFunctions.py" countain the function to represent the data generated.
+The python script: "show_functions.py" countain the function to represent the data generated.
 
  The function insde are:
 
   - plotEvolGen: This fuction is used to show the evolution of the proportion of mutation in the population through generation.
-   ![Exemple picture](EvolMutPropor.png)
+   ![Exemple picture](img/EvolMutPropor.png)
    
   - EvolLenPopShow: Represents changes in population size over generations.
-   ![Exemple picture](EvolPopLength.png)
+   ![Exemple picture](img/EvolPopLength.png)
 
   - GenealogicTree: Represents the family tree from the LUCA ancestor (identifier -1) of all individuals generated during the simulation. Gender and descent/ancestry links are indicated.
-   ![Exemple picture](GenealogicTree.png)
+   ![Exemple picture](img/GenealogicTree.png)
 
   - InformativLinearTree: This fuction used to show the genealogical link between the peoples created during the simulation, and their mutation rate (=number of mutated gens/total number of gens).
-   ![Exemple picture](InformativeGenealogicTree.png)
+   ![Exemple picture](img/InformativeGenealogicTree.png)
 
-The python script: "Exemple.py" provide an exemple of values and of utilisation of the two other script to make simulation.
+The python script: "exemple.py" provide an exemple of values and of utilisation of the two other script to make simulation.
 
 
 
