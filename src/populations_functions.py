@@ -678,18 +678,31 @@ def evoluteur(ngeneration, length_ini, p_woman, ngens, p_mutation, ppolygam=0,
 										np.concatenate(all_pop), dp,
 										coresvals, inf_consg, maxdeep)
 
-		if len(current_generation) == 0:
-			print("The population get extinct at the", i, "generation.")
+		num_w = len(current_generation[current_generation[:, 1] == 'f'])
+		num_m = len(current_generation[current_generation[:, 1] == 'm'])
+		if (num_w == 0)&(num_m == 0):
+			print('The population get extinct at the '+str(i)
+				 +'-th generation. With '+str(num_w)+' woman(en) and '
+				 +str(num_m)+' man(en).')
+
 			break
 
 		else:
-			couples = matcher_couple(current_generation, ppolygam)
 			muta_n.append(count_muts(current_generation, ngens))
 			all_pop.append(current_generation)
 			evo_len_pop.append(len(current_generation))
 			evo_len_pop_cum.append(np.cumsum(evo_len_pop))
-			print("Generation", str(i+1)+"/"+str(ngeneration))
-			print("\t", len(current_generation), 'individus')
+			if  (num_w == 0)|(num_m == 0):
+				print('The population get extinct at the '+str(i)
+					 +'-th generation. With '+str(num_w)+' woman(en) and '
+					 +str(num_m)+' man(en).')
+
+				break
+
+			else:
+				couples = matcher_couple(current_generation, ppolygam)
+				print("Generation", str(i+1)+"/"+str(ngeneration))
+				print("\t", len(current_generation), 'individus')
 
 	muta_n = np.array(muta_n)
 	evo_len_pop = np.array(evo_len_pop, dtype=float)

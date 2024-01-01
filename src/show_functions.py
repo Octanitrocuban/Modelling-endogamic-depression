@@ -5,7 +5,8 @@ Module with finction to create plots.
 import numpy as np
 import matplotlib.pyplot as plt
 #=============================================================================
-def plot_evol_gen(arr_of_mut, figsize=(16, 6), leg=False, marge=0.01):
+def plot_evol_gen(arr_of_mut, figsize=(16, 6), leg=False, marge=0.01,
+				  save=None):
 	"""
 	This fuction is used to show the evolution of the proportion of mutation
 	in the population through generation.
@@ -23,6 +24,8 @@ def plot_evol_gen(arr_of_mut, figsize=(16, 6), leg=False, marge=0.01):
 		figure. The default is (14, 6).
 	leg : bool, optional
 		Boolean to show (True) or not (False) le legend. The default is False.
+	save : NoneType or str, optional
+		If not None, it have to be str path to save the picture.
 
 	Returns
 	-------
@@ -51,9 +54,15 @@ def plot_evol_gen(arr_of_mut, figsize=(16, 6), leg=False, marge=0.01):
 		plt.legend(fontsize=13, ncol=2)
 
 	plt.xlim(lower, upper)
+	if type(save) == str:
+		if save[-4:] not in ['.png', '.pdf', '.jpg', '.svg', '.tif']:
+			save += '.png'
+
+		plt.savefig(save, bbox_inches='tight')
+
 	plt.show()
 
-def plot_evol_consang(arr_of_pop, figsize=(16, 6), leg=False, marge=0.01):
+def plot_evol_consang(arr_of_pop, figsize=(16, 6), marge=0.01, save=None):
 	"""
 	This fuction is used to show the evolution of the consanguinity score's in
 	the population through generation.
@@ -69,8 +78,8 @@ def plot_evol_consang(arr_of_pop, figsize=(16, 6), leg=False, marge=0.01):
 		Tuple or any other type of 1 dimensions vector with 2 elements. These
 		elements can be int and/or float. They are the width and high of the
 		figure. The default is (14, 6).
-	leg : bool, optional
-		Boolean to show (True) or not (False) le legend. The default is False.
+	save : NoneType or str, optional
+		If not None, it have to be str path to save the picture.
 
 	Returns
 	-------
@@ -91,16 +100,23 @@ def plot_evol_consang(arr_of_pop, figsize=(16, 6), leg=False, marge=0.01):
 	plt.figure(figsize=figsize)
 	plt.title("Evolution of consanguinity per generation", fontsize=22)
 	plt.grid(True, zorder=1)
-	plt.plot(scores, '.-', label=str(i), zorder=2)
+	plt.plot(scores, '.-', zorder=2)
 	plt.plot([0, nnb], [0.5, 0.5], 'k', zorder=2)
 	plt.xlabel("Generations", fontsize=15)
 	plt.ylabel("Mean consanguinity scores", fontsize=15)
 	plt.xticks(range(nnb+1), range(nnb+1), fontsize=14, rotation=90)
 	plt.xlim(lower, upper)
 	plt.ylim(-0.05, 1.05)
+	if type(save) == str:
+		if save[-4:] not in ['.png', '.pdf', '.jpg', '.svg', '.tif']:
+			save += '.png'
+
+		plt.savefig(save, bbox_inches='tight')
+
 	plt.show()
 
-def evol_len_pop_show(arr_len_pop, arr_sum_pop, figsize=(10, 6), marge=0.01):
+def evol_len_pop_show(arr_len_pop, arr_sum_pop, figsize=(10, 6), marge=0.01,
+					  save=None):
 	"""
 	Represents changes in population size over generations.
 
@@ -112,6 +128,8 @@ def evol_len_pop_show(arr_len_pop, arr_sum_pop, figsize=(10, 6), marge=0.01):
 		Somme commulé du nombre d'individus par génération
 	figsize: tuple
 		Largeur et hauteur de la figure.
+	save : NoneType or str, optional
+		If not None, it have to be str path to save the picture.
 
 	Returns
 	-------
@@ -149,9 +167,16 @@ def evol_len_pop_show(arr_len_pop, arr_sum_pop, figsize=(10, 6), marge=0.01):
 
 	plt.yticks(fontsize=14)
 	plt.xlim(lower, upper)
+	if type(save) == str:
+		if save[-4:] not in ['.png', '.pdf', '.jpg', '.svg', '.tif']:
+			save += '.png'
+
+		plt.savefig(save, bbox_inches='tight')
+
 	plt.show()
 
-def genealogic_tree(arr_of_pop, figsize=(16, 10), size_title=20, marge=0.02):
+def genealogic_tree(arr_of_pop, figsize=(16, 10), size_title=20, marge=0.02,
+					save=None):
 	"""
 	Represents the family tree from the LUCA ancestor (identifier -1) of all
 	individuals generated during the simulation. Gender and descent/ancestry
@@ -167,6 +192,8 @@ def genealogic_tree(arr_of_pop, figsize=(16, 10), size_title=20, marge=0.02):
 		Size of the fisure. The default is (16, 10).
 	size_title : int, optional
 		Size of the title. The default is 20.
+	save : NoneType or str, optional
+		If not None, it have to be str path to save the picture.
 
 	Returns
 	-------
@@ -241,10 +268,16 @@ def genealogic_tree(arr_of_pop, figsize=(16, 10), size_title=20, marge=0.02):
 
 	plt.yticks(fontsize=0)
 	plt.xlim(lower, upper)
+	if type(save) == str:
+		if save[-4:] not in ['.png', '.pdf', '.jpg', '.svg', '.tif']:
+			save += '.png'
+
+		plt.savefig(save, bbox_inches='tight')
+
 	plt.show()
 
 def informativ_linear_tree(arr_of_pop, figsize=(18, 14), size_title=22,
-						   scat_size=30, cmap='jet', marge=0.02):
+						   scat_size=30, cmap='jet', marge=0.02, save=None):
 	"""
 	This fuction used to show the genealogical link between the peoples
 	created during the simulation, and their mutation rate (=number of mutated
@@ -267,6 +300,8 @@ def informativ_linear_tree(arr_of_pop, figsize=(18, 14), size_title=22,
 		'jet'. I try different color map, and the most readeball were:
 		['autumn', 'brg', 'plasma', 'gist_rainbow', 'gnuplot', 'jet',
 		 'turbo', 'viridis'].
+	save : NoneType or str, optional
+		If not None, it have to be str path to save the picture.
 
 	Returns
 	-------
@@ -356,10 +391,16 @@ def informativ_linear_tree(arr_of_pop, figsize=(18, 14), size_title=22,
 	plt.legend(fontsize=15, loc='upper left')
 	plt.xlim(lower, upper)
 	plt.colorbar(shrink=0.7, orientation="horizontal", pad=0.12, aspect=50)
+	if type(save) == str:
+		if save[-4:] not in ['.png', '.pdf', '.jpg', '.svg', '.tif']:
+			save += '.png'
+
+		plt.savefig(save, bbox_inches='tight')
+
 	plt.show()
 
 def consang_linear_tree(arr_of_pop, figsize=(18, 14), size_title=22,
-						scat_size=30, cmap='jet', marge=0.02):
+						scat_size=30, cmap='jet', marge=0.02, save=None):
 	"""
 	This fuction used to show the genealogical link between the peoples
 	created during the simulation, and their mutation rate (=number of mutated
@@ -382,6 +423,8 @@ def consang_linear_tree(arr_of_pop, figsize=(18, 14), size_title=22,
 		'jet'. I try different color map, and the most readeball were:
 		['autumn', 'brg', 'plasma', 'gist_rainbow', 'gnuplot', 'jet',
 		 'turbo', 'viridis'].
+	save : NoneType or str, optional
+		If not None, it have to be str path to save the picture.
 
 	Returns
 	-------
@@ -465,4 +508,10 @@ def consang_linear_tree(arr_of_pop, figsize=(18, 14), size_title=22,
 	plt.legend(fontsize=15, loc='upper left')
 	plt.xlim(lower, upper)
 	plt.colorbar(shrink=0.7, orientation="horizontal", pad=0.12, aspect=50)
+	if type(save) == str:
+		if save[-4:] not in ['.png', '.pdf', '.jpg', '.svg', '.tif']:
+			save += '.png'
+
+		plt.savefig(save, bbox_inches='tight')
+
 	plt.show()
