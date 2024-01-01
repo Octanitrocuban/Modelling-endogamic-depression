@@ -403,8 +403,7 @@ def consang_linear_tree(arr_of_pop, figsize=(18, 14), size_title=22,
 						scat_size=30, cmap='jet', marge=0.02, save=None):
 	"""
 	This fuction used to show the genealogical link between the peoples
-	created during the simulation, and their mutation rate (=number of mutated
-	gens/total number of gens).
+	created during the simulation and their consanguinity level (from 0 to 1).
 
 	Parameters
 	----------
